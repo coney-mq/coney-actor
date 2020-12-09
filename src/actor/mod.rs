@@ -1,3 +1,6 @@
+pub mod context;
+pub use context::Context;
+
 mod actor;
 pub use actor::Actor;
 
@@ -7,6 +10,7 @@ pub use actor_api::ActorApi;
 mod actor_handler;
 pub use actor_handler::ActorHandler;
 pub use actor_handler::QueryHandled;
+pub use actor_handler::StartHandled;
 
 mod actor_ext;
 pub use actor_ext::ActorExt;
@@ -20,4 +24,3 @@ use chans::Chans;
 mod system_message;
 use system_message::SystemMessage;
 mod actor_run;
-pub use actor_run::ActorContext;

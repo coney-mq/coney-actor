@@ -3,9 +3,6 @@ use super::*;
 mod run;
 pub use run::run;
 
-mod context;
-pub use context::ActorContext;
-
 mod event;
 use event::Event;
 

@@ -6,6 +6,9 @@ where
     #[error("ActorFailure::HandlerError")]
     HandlerError(#[source] E),
 
+    #[error("ActorFailure::OneshotGone")]
+    OneshotGone,
+
     #[error("ActorFailure::Terminated")]
     Terminated,
 

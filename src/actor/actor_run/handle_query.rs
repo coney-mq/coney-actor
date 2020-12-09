@@ -1,13 +1,13 @@
-use super::ActorContext;
 use super::ActorFailure;
 use super::ActorHandler;
+use super::Context;
 use super::QueryHandled;
 
 use super::AndThen;
 
 pub async fn handle_query<H>(
     handler: &mut H,
-    ctx: &mut ActorContext<H::Query>,
+    ctx: &mut Context<H::Query>,
     query: H::Query,
 ) -> Result<AndThen<H::Value>, ActorFailure<H::Error>>
 where

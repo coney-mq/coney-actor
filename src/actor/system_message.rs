@@ -1,4 +1,7 @@
 #[derive(Debug)]
 pub enum SystemMessage {
-    Shutdown,
+    Shutdown(Shutdown),
 }
+
+#[derive(Debug, Default)]
+pub struct Shutdown {}
