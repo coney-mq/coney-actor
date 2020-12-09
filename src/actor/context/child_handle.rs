@@ -15,4 +15,7 @@ impl ChildHandle {
     pub fn system_tx_mut(&mut self) -> &mut mpsc::UnboundedSender<SystemMessage> {
         &mut self.system_tx
     }
+    pub fn system_tx(&self) -> &mpsc::UnboundedSender<SystemMessage> {
+        &self.system_tx
+    }
 }

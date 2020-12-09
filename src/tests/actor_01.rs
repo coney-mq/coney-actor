@@ -86,5 +86,4 @@ async fn test() {
     let server = a.run();
 
     println!("{:?}", future::join(client, server).await);
-    let () = ::tokio::time::sleep(Duration::from_secs(1)).await;
 }
