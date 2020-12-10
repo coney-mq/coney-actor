@@ -1,8 +1,8 @@
 use ::futures::prelude::*;
 
-use super::ActorFailure;
-use super::ActorHandler;
-use super::Context;
+use crate::actor_failure::ActorFailure;
+use crate::actor_handler::ActorHandler;
+use crate::context::Context;
 
 use super::AndThen;
 use super::Event;

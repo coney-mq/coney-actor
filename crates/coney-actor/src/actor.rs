@@ -1,5 +1,5 @@
-use super::ActorHandler;
-use super::Chans;
+use crate::actor_handler::ActorHandler;
+use crate::chans::Chans;
 
 #[derive(Debug)]
 pub struct Actor<H: ActorHandler> {

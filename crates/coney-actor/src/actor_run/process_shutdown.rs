@@ -1,12 +1,12 @@
 use ::futures::prelude::*;
 
-use super::ActorFailure;
-use super::ActorHandler;
-use super::Context;
+use crate::actor_failure::ActorFailure;
+use crate::actor_handler::ActorHandler;
+use crate::context::Context;
 
-use super::system_message::Shutdown;
-use super::system_message::ShutdownReason;
-use super::SystemMessage;
+use crate::system_message::Shutdown;
+use crate::system_message::ShutdownReason;
+use crate::system_message::SystemMessage;
 
 pub async fn process_shutdown<H>(
     handler: &mut H,

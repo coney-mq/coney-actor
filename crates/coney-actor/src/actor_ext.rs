@@ -1,9 +1,9 @@
 use std::error::Error as StdError;
 
-use super::Actor;
-use super::ActorApi;
-use super::ActorFailure;
-use super::ActorHandler;
+use crate::actor::Actor;
+use crate::actor_api::ActorApi;
+use crate::actor_failure::ActorFailure;
+use crate::actor_handler::ActorHandler;
 
 #[async_trait::async_trait]
 pub trait ActorExt: Send + Sync {

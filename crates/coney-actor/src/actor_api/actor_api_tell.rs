@@ -1,4 +1,6 @@
-use super::*;
+use ::futures::prelude::*;
+
+use super::ActorApi;
 
 impl<Q> ActorApi<Q> {
     pub async fn tell<T: Into<Q>>(&mut self, q: T) {

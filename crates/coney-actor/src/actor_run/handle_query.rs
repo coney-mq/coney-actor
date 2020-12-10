@@ -1,7 +1,7 @@
-use super::ActorFailure;
-use super::ActorHandler;
-use super::Context;
-use super::QueryHandled;
+use crate::actor_failure::ActorFailure;
+use crate::actor_handler::ActorHandler;
+use crate::actor_handler::QueryHandled;
+use crate::context::Context;
 
 use super::AndThen;
 

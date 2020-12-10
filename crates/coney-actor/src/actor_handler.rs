@@ -1,7 +1,7 @@
 use std::error::Error as StdError;
 
-use super::ActorFailure;
-use super::Context;
+use crate::actor_failure::ActorFailure;
+use crate::context::Context;
 
 #[async_trait::async_trait]
 pub trait ActorHandler: Send + Sync {

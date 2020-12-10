@@ -1,4 +1,6 @@
-use super::*;
+use ::futures::channel::mpsc;
+
+use crate::system_message::SystemMessage;
 
 #[derive(Debug, Clone)]
 pub struct ActorApi<Q> {

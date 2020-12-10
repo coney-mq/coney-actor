@@ -1,21 +1,21 @@
-use super::system_message as sm;
-use super::ActorFailure;
-use super::ActorHandler;
+use crate::actor_failure::ActorFailure;
+use crate::actor_handler::ActorHandler;
+use crate::context::Context;
+use crate::system_message as sm;
+
 use super::AndThen;
-use super::Context;
-use super::SystemMessage;
 
 pub async fn handle_system_message<H>(
     handler: &mut H,
     context: &mut Context<H::Query>,
-    system_message: SystemMessage,
+    system_message: sm::SystemMessage,
 ) -> AndThen<(), Result<H::Value, ActorFailure<H::Error>>>
 where
     H: ActorHandler,
 {
     match system_message {
-        SystemMessage::Shutdown(shutdown) => handle_shutdown(handler, context, shutdown).await,
-        SystemMessage::GetChildren(get_children) => {
+        sm::SystemMessage::Shutdown(shutdown) => handle_shutdown(handler, context, shutdown).await,
+        sm::SystemMessage::GetChildren(get_children) => {
             handle_get_children(handler, context, get_children).await
         }
     }

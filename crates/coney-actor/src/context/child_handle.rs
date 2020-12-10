@@ -1,6 +1,6 @@
-use super::*;
-
 use ::futures::channel::mpsc;
+
+use crate::system_message::SystemMessage;
 
 #[derive(Debug)]
 pub struct ChildHandle {

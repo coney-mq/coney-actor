@@ -1,11 +1,10 @@
-use super::ActorFailure;
-use super::ActorHandler;
-use super::Context;
-
-use super::AndThen;
-use super::StartHandled;
+use crate::actor_failure::ActorFailure;
+use crate::actor_handler::ActorHandler;
+use crate::actor_handler::StartHandled;
+use crate::context::Context;
 
 use super::process_shutdown;
+use super::AndThen;
 
 pub async fn process_startup<H>(
     handler: &mut H,
