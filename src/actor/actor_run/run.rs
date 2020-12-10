@@ -5,9 +5,11 @@ use super::ActorFailure;
 use super::ActorHandler;
 use super::Context;
 
+use super::AndThen;
 use super::Event;
-use super::StartHandled;
 
+use super::process_shutdown;
+use super::process_startup;
 use super::run_event_loop;
 
 pub async fn run<H: ActorHandler>(actor: Actor<H>) -> Result<H::Value, ActorFailure<H::Error>> {
@@ -18,20 +20,10 @@ pub async fn run<H: ActorHandler>(actor: Actor<H>) -> Result<H::Value, ActorFail
 
     let mut ctx = Context::create(query_tx, system_tx);
 
-    match handler.on_start(&mut ctx).await {
-        Ok(StartHandled::Proceed) => {}
-
-        Ok(StartHandled::Done(mut value)) => {
-            let () = on_complete(&mut handler, &mut ctx, &mut value).await;
-            return Ok(value);
-        }
-
-        Err(reason) => {
-            let reason = ActorFailure::HandlerError(reason);
-            let () = on_failure(&mut handler, &mut ctx, &reason).await;
-            return Err(reason);
-        }
-    }
+    let mut state = match process_startup(&mut handler, &mut ctx).await {
+        AndThen::Return(ret_value) => return ret_value,
+        AndThen::Proceed(state) => state,
+    };
 
     let system_rx = actor.chans.system_rx;
     let query_rx = actor.chans.query_rx;
@@ -43,32 +35,7 @@ pub async fn run<H: ActorHandler>(actor: Actor<H>) -> Result<H::Value, ActorFail
         .chain(stream::once(async { Event::QueryChanClosed }));
     let events = stream::select(system_rx, query_rx);
 
-    let loop_result = run_event_loop(events, &mut handler, &mut ctx).await;
+    let loop_result = run_event_loop(events, &mut handler, &mut state, &mut ctx).await;
 
-    match loop_result {
-        Ok(mut value) => {
-            let () = on_complete(&mut handler, &mut ctx, &mut value).await;
-            Ok(value)
-        }
-        Err(reason) => {
-            let () = on_failure(&mut handler, &mut ctx, &reason).await;
-            Err(reason)
-        }
-    }
-}
-
-async fn on_complete<H: ActorHandler>(
-    handler: &mut H,
-    ctx: &mut Context<H::Query>,
-    value: &mut H::Value,
-) {
-    handler.on_complete(ctx, value).await
-}
-
-async fn on_failure<H: ActorHandler>(
-    handler: &mut H,
-    ctx: &mut Context<H::Query>,
-    reason: &ActorFailure<H::Error>,
-) {
-    handler.on_failure(ctx, reason).await
+    process_shutdown(&mut handler, &mut ctx, &mut state, loop_result).await
 }

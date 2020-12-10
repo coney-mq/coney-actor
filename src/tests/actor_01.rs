@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use ::futures::prelude::*;
 
 use crate::prelude::*;
@@ -12,25 +10,31 @@ enum Q {
 
 #[derive(Debug)]
 struct A;
-struct B;
+struct B {
+    id: usize,
+}
 
 #[async_trait::async_trait]
 impl ActorHandler for A {
+    type State = ();
     type Value = ();
     type Query = Q;
     type Error = std::convert::Infallible;
 
-    async fn on_start(
+    async fn start(
         &mut self,
         ctx: &mut Context<Self::Query>,
-    ) -> Result<StartHandled<Self::Value>, Self::Error> {
-        let _ = ctx.child_run(Actor::create(B), None).await;
+    ) -> Result<StartHandled<Self::State, Self::Value>, Self::Error> {
+        for id in 0..5 {
+            let _ = ctx.child_run(Actor::create(B { id }), None).await;
+        }
 
-        Ok(StartHandled::Proceed)
+        Ok(StartHandled::Proceed(()))
     }
 
     async fn handle_query(
         &mut self,
+        _state: &mut Self::State,
         _ctx: &mut Context<Self::Query>,
         query: Self::Query,
     ) -> Result<QueryHandled<Self::Value>, Self::Error> {
@@ -38,36 +42,61 @@ impl ActorHandler for A {
         Ok(QueryHandled::Continue)
     }
 
-    async fn on_failure(
+    async fn pre_stop(
         &mut self,
+        _state: &mut Self::State,
         _ctx: &mut Context<Self::Query>,
-        reason: &ActorFailure<Self::Error>,
+        result: Result<&mut Self::Value, &ActorFailure<Self::Error>>,
     ) {
-        println!("A on_failure: {}", reason);
+        println!("A pre_stop [result: {:?}]", result);
+    }
+    async fn post_stop(
+        &mut self,
+        _state: &mut Self::State,
+        result: Result<&mut Self::Value, &ActorFailure<Self::Error>>,
+    ) {
+        println!("A post_stop [result: {:?}]", result);
     }
 }
 
 #[async_trait::async_trait]
 impl ActorHandler for B {
+    type State = usize;
     type Value = ();
     type Query = Q;
     type Error = std::convert::Infallible;
 
+    async fn start(
+        &mut self,
+        _ctx: &mut Context<Self::Query>,
+    ) -> Result<StartHandled<Self::State, Self::Value>, Self::Error> {
+        Ok(StartHandled::Proceed(self.id))
+    }
+
     async fn handle_query(
         &mut self,
+        state: &mut Self::State,
         _ctx: &mut Context<Self::Query>,
         query: Self::Query,
     ) -> Result<QueryHandled<Self::Value>, Self::Error> {
-        println!("B handle_query: {:?}", query);
+        println!("B[{:?}] handle_query: {:?}", state, query);
         Ok(QueryHandled::Continue)
     }
 
-    async fn on_failure(
+    async fn pre_stop(
         &mut self,
+        state: &mut Self::State,
         _ctx: &mut Context<Self::Query>,
-        reason: &ActorFailure<Self::Error>,
+        result: Result<&mut Self::Value, &ActorFailure<Self::Error>>,
     ) {
-        println!("B on_failure: {}", reason);
+        println!("B[{:?}] pre_stop [result: {:?}]", state, result);
+    }
+    async fn post_stop(
+        &mut self,
+        state: &mut Self::State,
+        result: Result<&mut Self::Value, &ActorFailure<Self::Error>>,
+    ) {
+        println!("B[{:?}] post_stop [result: {:?}]", state, result);
     }
 }
 
@@ -80,7 +109,7 @@ async fn test() {
     let client = async move {
         let () = api.tell(Q::One).await;
         let () = api.tell(Q::Two).await;
-        let () = api.shutdown().await;
+        let () = api.shutdown(Default::default()).await;
     };
 
     let server = a.run();

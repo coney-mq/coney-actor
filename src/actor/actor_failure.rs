@@ -1,3 +1,5 @@
+use super::system_message::ShutdownReason;
+
 #[derive(Debug, Error)]
 pub enum ActorFailure<E>
 where
@@ -10,7 +12,7 @@ where
     OneshotGone,
 
     #[error("ActorFailure::Terminated")]
-    Terminated,
+    Terminated(ShutdownReason),
 
     #[error("ActorFailure::UnexpectedRxTermination,")]
     UnexpectedRxTermination,

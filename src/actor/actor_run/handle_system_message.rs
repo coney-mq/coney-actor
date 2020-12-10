@@ -5,13 +5,11 @@ use super::AndThen;
 use super::Context;
 use super::SystemMessage;
 
-use ::futures::prelude::*;
-
 pub async fn handle_system_message<H>(
     handler: &mut H,
     context: &mut Context<H::Query>,
     system_message: SystemMessage,
-) -> Result<AndThen<H::Value>, ActorFailure<H::Error>>
+) -> AndThen<(), Result<H::Value, ActorFailure<H::Error>>>
 where
     H: ActorHandler,
 {
@@ -27,28 +25,19 @@ async fn handle_shutdown<H>(
     _handler: &mut H,
     context: &mut Context<H::Query>,
     request: sm::Shutdown,
-) -> Result<AndThen<H::Value>, ActorFailure<H::Error>>
+) -> AndThen<(), Result<H::Value, ActorFailure<H::Error>>>
 where
     H: ActorHandler,
 {
-    let mut children = context.children().lock().await;
-    for (_child_id, child_handle) in children.iter_mut() {
-        let (shutdown_rq, shutdown_result) = sm::Shutdown::new();
-        let _ = child_handle
-            .system_tx_mut()
-            .send(SystemMessage::Shutdown(shutdown_rq))
-            .await;
-        let () = shutdown_result.await;
-    }
-    let _ = request.reply_tx.send(());
-    Err(ActorFailure::Terminated)
+    let () = context.shutdown_notifications.push(request.reply_tx);
+    AndThen::Return(Err(ActorFailure::Terminated(request.reason)))
 }
 
 async fn handle_get_children<H>(
     _handler: &mut H,
     context: &mut Context<H::Query>,
     request: sm::GetChildren,
-) -> Result<AndThen<H::Value>, ActorFailure<H::Error>>
+) -> AndThen<(), Result<H::Value, ActorFailure<H::Error>>>
 where
     H: ActorHandler,
 {
@@ -66,5 +55,6 @@ where
         })
         .collect();
     let _ = request.reply_tx.send(children);
-    Err(ActorFailure::Terminated)
+
+    AndThen::Proceed(())
 }

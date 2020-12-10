@@ -13,6 +13,7 @@ use super::handle_system_message;
 pub async fn run_event_loop<E, H>(
     events: E,
     handler: &mut H,
+    state: &mut H::State,
     ctx: &mut Context<H::Query>,
 ) -> Result<H::Value, ActorFailure<H::Error>>
 where
@@ -23,16 +24,16 @@ where
 
     while let Some(event) = events.next().await {
         let and_then = match event {
-            Event::SystemChanClosed => Err(ActorFailure::UnexpectedRxTermination)?,
-            Event::QueryChanClosed => Err(ActorFailure::UnexpectedRxTermination)?,
+            Event::SystemChanClosed => AndThen::Return(Err(ActorFailure::UnexpectedRxTermination)),
+            Event::QueryChanClosed => AndThen::Return(Err(ActorFailure::UnexpectedRxTermination)),
             Event::SystemMessage(system_message) => {
-                handle_system_message(handler, ctx, system_message).await?
+                handle_system_message(handler, ctx, system_message).await
             }
-            Event::Query(query) => handle_query(handler, ctx, query).await?,
+            Event::Query(query) => handle_query(handler, state, ctx, query).await,
         };
         match and_then {
-            AndThen::Continue => continue,
-            AndThen::Done(value) => return Ok(value),
+            AndThen::Return(ret_value) => return ret_value,
+            AndThen::Proceed(()) => continue,
         }
     }
 

@@ -12,6 +12,7 @@ impl<Q> Context<Q> {
             this_system_tx,
             next_child_id: 0,
             children: Default::default(),
+            shutdown_notifications: Default::default(),
         }
     }
 }

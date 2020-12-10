@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum AndThen<V> {
-    Done(V),
-    Continue,
+pub enum AndThen<Proceed, Return> {
+    Proceed(Proceed),
+    Return(Return),
 }
