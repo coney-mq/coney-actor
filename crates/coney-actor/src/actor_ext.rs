@@ -12,7 +12,7 @@ pub trait ActorExt: Send + Sync {
     type Error: StdError + Sync + Send + 'static;
 
     fn api(&self) -> ActorApi<Self::Query>;
-    async fn run(self) -> Result<Self::Value, Self::Error>;
+    async fn run(&mut self) -> Result<Self::Value, Self::Error>;
 }
 
 #[async_trait::async_trait]
@@ -31,7 +31,7 @@ where
         }
     }
 
-    async fn run(self) -> Result<Self::Value, Self::Error> {
+    async fn run(&mut self) -> Result<Self::Value, Self::Error> {
         super::actor_run::run(self).await
     }
 }

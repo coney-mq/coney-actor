@@ -14,7 +14,11 @@ pub struct ChildSpawned<H: ActorHandler> {
 }
 
 impl<Q> Context<Q> {
-    pub async fn child_run<H>(&mut self, child: Actor<H>, name: Option<String>) -> ChildSpawned<H>
+    pub async fn child_run<H>(
+        &mut self,
+        mut child: Actor<H>,
+        name: Option<String>,
+    ) -> ChildSpawned<H>
     where
         H: ActorHandler + 'static,
     {

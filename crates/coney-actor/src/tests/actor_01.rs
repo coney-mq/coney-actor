@@ -103,7 +103,7 @@ impl ActorHandler for B {
 #[tokio::test]
 async fn test() {
     let a = A;
-    let a = Actor::create(a);
+    let mut a = Actor::create(a);
     let mut api = a.api();
 
     let client = async move {
