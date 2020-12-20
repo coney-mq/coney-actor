@@ -8,9 +8,10 @@ use crate::actor_handler::ActorHandler;
 use super::ChildHandle;
 use super::Context;
 
+#[derive(Debug)]
 pub struct ChildSpawned<H: ActorHandler> {
     child_id: usize,
-    child_output_rx: oneshot::Receiver<Result<H::Value, ActorFailure<H::Error>>>,
+    child_output_rx: oneshot::Receiver<(Actor<H>, Result<H::Value, ActorFailure<H::Error>>)>,
 }
 
 impl<Q> Context<Q> {
@@ -49,7 +50,7 @@ impl<Q> Context<Q> {
             async move {
                 let actor_result = child.run().await;
                 let _ = children.lock().await.remove(&child_id);
-                let _ = child_output_tx.send(actor_result);
+                let _ = child_output_tx.send((child, actor_result));
             }
         };
 
@@ -64,10 +65,10 @@ impl<H: ActorHandler> ChildSpawned<H> {
         self.child_id
     }
 
-    pub async fn value(self) -> Result<H::Value, ActorFailure<H::Error>> {
-        self.child_output_rx
-            .await
-            .map_err(|_| ActorFailure::OneshotGone)
-            .and_then(|r| r)
-    }
+    // pub async fn value(self) -> (Actor<H>, Result<H::Value, ActorFailure<H::Error>> ){
+    //     self.child_output_rx
+    //         .await
+    //         .map_err(|_| ActorFailure::OneshotGone)
+    //         .and_then(|(a, r)| r)
+    // }
 }

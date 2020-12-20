@@ -10,6 +10,8 @@ enum Q {
 
 #[derive(Debug)]
 struct A;
+
+#[derive(Debug)]
 struct B {
     id: usize,
 }

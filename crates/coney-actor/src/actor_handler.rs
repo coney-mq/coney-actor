@@ -1,13 +1,14 @@
 use std::error::Error as StdError;
+use std::fmt;
 
 use crate::actor_failure::ActorFailure;
 use crate::context::Context;
 
 #[async_trait::async_trait]
-pub trait ActorHandler: Send + Sync {
-    type State: Send;
-    type Query: Send;
-    type Value: Send + Sync;
+pub trait ActorHandler: fmt::Debug + Send + Sync + 'static {
+    type State: fmt::Debug + Send;
+    type Query: fmt::Debug + Send;
+    type Value: fmt::Debug + Send + Sync;
     type Error: StdError + Send + Sync + 'static;
 
     async fn start(
