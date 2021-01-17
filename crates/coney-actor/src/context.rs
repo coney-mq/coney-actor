@@ -1,4 +1,4 @@
-use std::fmt;
+use crate::actor_arena::ActorArena;
 
 #[async_trait::async_trait]
-pub trait Context: fmt::Debug + Send {}
+pub trait Context: ActorArena + Send + Sync + 'static {}

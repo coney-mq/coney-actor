@@ -1,0 +1,20 @@
+[package]
+name = "coney-actor-local"
+version = "0.1.0"
+authors = ["Roman Gafiyatullin <r.gafiyatullin@me.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "^1"
+thiserror = "^1"
+async-trait = "^0.1"
+pin-project = "^1"
+# pinky-swear = "^1.1"
+futures = "^0.3"
+coney-actor = { version = "^0.1", path = "../coney-actor" }
+tokio = { version = "^0.3", features = ["rt"] }
+
+[dev-dependencies]
+tokio = {version = "^0.3", features = ["full"]}

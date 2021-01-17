@@ -1,4 +1,5 @@
 [workspace]
 members = [
     "crates/coney-actor",
+    "crates/coney-actor-local",
 ]
